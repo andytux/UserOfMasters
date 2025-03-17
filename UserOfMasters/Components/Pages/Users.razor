@@ -1,0 +1,41 @@
+﻿@page "/users"
+
+@inject UserService UserService
+
+<h3>Users</h3>
+
+<div>
+	<table class="table table-bordered table-secondary text-center">
+		<thead>
+			<tr>
+				<td>Id</td>
+				<td>Username</td>
+				<td>Passwordhash</td>
+				<td>Reset token</td>
+				<td>Token expire</td>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach(var user in users)
+			{
+				<tr>
+					<td>@user.UserId</td>
+					<td>@user.UserName</td>
+					<td>@user.PasswordHash</td>
+					<td>@user.ResetToken</td>
+					<td>@user.TokenExpire</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
+
+@code {
+	private List<User> users = new List<User>();
+
+	protected override void OnInitialized()
+	{
+		users = UserService.GetUsers();
+	}
+
+}

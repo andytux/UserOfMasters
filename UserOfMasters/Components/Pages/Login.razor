@@ -1,0 +1,88 @@
+﻿@page "/login"
+@page "/login/{Message}"
+@page "/login/{Message}/{UserName}"
+
+@inject AuthService AuthService
+@inject AuthStateService AuthStateService
+@inject UserService UserService
+@inject NavigationManager NavManager
+
+
+<h3>Login</h3>
+<Messages Message="@Message"></Messages>
+
+<div>
+	<InputField Label="Username"
+				@bind-Value="UserName"
+				Placeholder="Enter username here">
+	</InputField>
+	<InputField Label="Password"
+				@bind-Value="Password"
+				Placeholder="Enter password here"
+				IsPassword="true"
+				ShowPassword="@ShowPassword">
+	</InputField>
+
+	<div>
+		<InputCheckbox @bind-Value="ShowPassword"></InputCheckbox>
+		<label>Show password</label>
+	</div>
+
+	<div>
+		<button @onclick="LoginUser">Login</button>
+		<button @onclick="NavToRegister">Register</button>
+		<button @onclick="NavToForgotPassword">Forgot password?</button>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public string Message { get; set; } = string.Empty;
+
+	[Parameter]
+	public string UserName { get; set; } = string.Empty;
+	public string Password = string.Empty;
+	public string ConfirmPassword = string.Empty;
+	
+
+
+	public bool ShowPassword = false;
+
+
+	public void LoginUser()
+	{
+		var user = UserService.GetUserWithUserName(UserName);
+
+		if (user == null)
+		{
+			Message = $"User: ({UserName}) not found in system.";
+			return;
+		}
+
+		var salt = AuthService.GetSaltOfGuid(user.UserId);
+
+		if (!AuthService.VerifyPassword(Password, user.PasswordHash, salt))
+		{
+			Message = "Password don't match";
+			return;
+		}
+
+		AuthStateService.Login(UserName, user.UserId);
+
+		Message = $"User: ({UserName}) login successfully.";
+
+		StateHasChanged();
+
+		NavManager.NavigateTo($"/home/{Message}");
+	}
+
+	public void NavToForgotPassword()
+	{
+		NavManager.NavigateTo($"/forgotPassword/{UserName}");
+	}
+
+	public void NavToRegister()
+	{
+		NavManager.NavigateTo($"/register");
+	}
+}

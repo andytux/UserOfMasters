@@ -1,0 +1,85 @@
+﻿@page "/register"
+
+@inject AuthService AuthService
+@inject UserService UserService
+@inject NavigationManager NavManager
+
+
+<h3>Register</h3>
+<Messages Message="@Message"></Messages>
+
+<div>
+	<InputField Label="Username"
+				@bind-Value="UserName"
+				Placeholder="Enter username here">
+	</InputField>
+	<InputField Label="Password"
+				@bind-Value="Password"
+				Placeholder="Enter password here"
+				IsPassword="true"
+				ShowPassword="@ShowPassword">
+	</InputField>
+	<InputField Label="Confirm password"
+				@bind-Value="ConfirmPassword"
+				Placeholder="Confirm the password here"
+				IsPassword="true"
+				ShowPassword="@ShowPassword">
+	</InputField>
+
+	<div>
+		<InputCheckbox @bind-Value="ShowPassword"></InputCheckbox>
+		<label>Show password</label>
+	</div>
+
+	<div>
+		<button @onclick="RegisterUser">Register</button>
+		<button @onclick="NavToLogin">Back to login</button>
+	</div>
+</div>
+
+@code {
+	public string UserName = string.Empty;
+	public string Password = string.Empty;
+	public string ConfirmPassword = string.Empty;
+	public string Message = string.Empty;
+
+	public bool ShowPassword = false;
+
+	public async Task RegisterUser()
+	{
+		if (Password != ConfirmPassword)
+		{
+			Message = "Passwords don't match";
+			return;
+		}
+
+		if (UserService.UserAlreadyExists(UserName))
+		{
+			Message = $"User: ({UserName}) already exists.";
+			return;
+		}
+
+		var user = new User
+			{
+				UserName = UserName
+			};
+
+		var salt = AuthService.GetSaltOfGuid(user.UserId);
+
+		user.PasswordHash = AuthService.HashPassword(Password, salt);
+
+		await UserService.AddUserAsync(user);
+
+		Message = $"User: ({UserName} was registered successfully)";
+
+		StateHasChanged();
+
+		NavManager.NavigateTo($"/login/{Message}/{UserName}");
+	}
+
+	private void NavToLogin()
+	{
+		NavManager.NavigateTo("/login");
+	}
+
+}

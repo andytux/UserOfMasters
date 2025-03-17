@@ -1,0 +1,18 @@
+﻿@page "/"
+@page "/home/{Message}"
+
+<ProtectedPage>
+
+	<PageTitle>Home</PageTitle>
+	<Messages Message="@Message"></Messages>
+
+	<h1>Hello, world!</h1>
+
+	Welcome to your new app.
+
+</ProtectedPage>
+
+@code {
+	[Parameter]
+	public string Message { get; set; } = string.Empty;
+}

@@ -1,0 +1,12 @@
+﻿@if (!string.IsNullOrEmpty(Message))
+{
+	<p>@Message</p>
+}
+
+@code {
+	[Parameter]
+	public string Message { get; set; } = string.Empty;
+
+
+
+}

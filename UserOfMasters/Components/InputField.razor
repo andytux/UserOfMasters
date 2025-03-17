@@ -1,0 +1,60 @@
+﻿<div class="mb-1">
+	<label>@Label</label>
+	<input class="@GetClassText()"
+		   @bind-value="Value"
+		   @oninput="OnValueChangedAsync"
+		   placeholder="@Placeholder"
+		   type="@GetInputText()"
+		   disabled="@IsDisabled"/>
+		   
+</div>
+
+@code {
+	[Parameter]
+	public string Label { get; set; } = string.Empty;
+
+	[Parameter]
+	public string Value { get; set; } = string.Empty;
+
+	[Parameter]
+	public string Placeholder { get; set; } = string.Empty;
+
+	[Parameter]
+	public bool IsPassword { get; set; } = false;
+
+	[Parameter]
+	public bool ShowPassword { get; set; } = false;
+
+	[Parameter]
+	public bool IsDisabled { get; set; } = false;
+
+	[Parameter]
+	public EventCallback<string> ValueChanged { get; set; }
+
+	public string InputText = "text";
+	public string Class = "form-control";
+
+	public string GetInputText()
+	{
+		return IsPassword ? (ShowPassword ? "text" : "password") : "text";
+	}
+
+	public string GetClassText()
+	{
+		return IsDisabled ? "form-control disabled" : "form-control";
+	}
+
+	protected override void OnParametersSet()
+	{
+		InputText = GetInputText();
+		Class = GetClassText();
+
+	}
+
+	public async Task OnValueChangedAsync(ChangeEventArgs e)
+	{
+		Value = e.Value?.ToString() ?? string.Empty;
+
+		await ValueChanged.InvokeAsync(Value);
+	}
+}
